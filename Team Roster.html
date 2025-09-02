@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Rotation Roster</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .info-section {
+            padding: 25px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info-card h3 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 1.2em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+        .shift-info {
+            display: grid;
+            gap: 8px;
+        }
+        .shift-item {
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        .shift-morning { background-color: #fff3cd; border-left: 4px solid #ffc107; }
+        .shift-afternoon { background-color: #cce5ff; border-left: 4px solid #007bff; }
+        .shift-night { background-color: #e6ccff; border-left: 4px solid #6f42c1; }
+        .shift-regular { background-color: #d4edda; border-left: 4px solid #28a745; }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .tabs {
+            display: flex;
+            background: #e9ecef;
+            margin: 0;
+            padding: 0;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab:hover {
+            background: #dee2e6;
+        }
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .roster-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        .roster-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .roster-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .date-col {
+            width: 80px;
+            font-weight: 600;
+            color: #495057;
+        }
+        .day-col {
+            width: 60px;
+            font-weight: 500;
+            color: #6c757d;
+        }
+        .shift-cell {
+            color: #333;
+            font-weight: 600;
+        }
+        .morning { background-color: #fff3cd; }
+        .afternoon { background-color: #cce5ff; }
+        .night { background-color: #e6ccff; }
+        .regular { background-color: #d4edda; }
+        .off { background-color: #f8f9fa; color: #6c757d; }
+        .weekend {
+            background-color: #fff5f5;
+        }
+        .weekend .date-col {
+            color: #dc3545;
+            font-weight: 700;
+        }
+        .summary {
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        .summary h3 {
+            margin: 0 0 20px 0;
+            color: #495057;
+            font-size: 1.3em;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+        .summary-item strong {
+            display: block;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .rotation-schedule {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Team Rotation Roster</h1>
+            <p>September 15, 2025 - December 31, 2025</p>
+        </div>
+
+        <div class="info-section">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Shift Schedule</h3>
+                    <div class="shift-info">
+                        <div class="shift-item shift-morning">Morning: 06:00-15:30 (1 person)</div>
+                        <div class="shift-item shift-afternoon">Afternoon: 14:00-23:30 (1 person)</div>
+                        <div class="shift-item shift-night">Night: 22:00-07:00 (2 persons)</div>
+                        <div class="shift-item shift-regular">Regular: 08:30-18:00 (3 + extras, Mon-Fri only)</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Team Members</h3>
+                    <div>
+                        <strong>Rotation Staff (6):</strong><br>
+                        Praveen, Thilagar, Alex, Saravanan, Mani, Ryan
+                        <br><br>
+                        <strong>Regular Staff (3):</strong><br>
+                        Senthil K, Shi Chun, Soma
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Color Legend</h3>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #fff3cd;"></div>
+                            Morning
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #cce5ff;"></div>
+                            Afternoon
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e6ccff;"></div>
+                            Night
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #d4edda;"></div>
+                            Regular
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f8f9fa;"></div>
+                            OFF
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('september')">September</button>
+            <button class="tab" onclick="showTab('october')">October</button>
+            <button class="tab" onclick="showTab('november')">November</button>
+            <button class="tab" onclick="showTab('december')">December</button>
+        </div>
+
+        <div id="september" class="tab-content active">
+            <h2>September 2025 (Starting Sep 15)</h2>
+            <div id="september-roster"></div>
+            <div id="september-summary"></div>
+        </div>
+
+        <div id="october" class="tab-content">
+            <h2>October 2025</h2>
+            <div id="october-roster"></div>
+            <div id="october-summary"></div>
+        </div>
+
+        <div id="november" class="tab-content">
+            <h2>November 2025</h2>
+            <div id="november-roster"></div>
+            <div id="november-summary"></div>
+        </div>
+
+        <div id="december" class="tab-content">
+            <h2>December 2025</h2>
+            <div id="december-roster"></div>
+            <div id="december-summary"></div>
+        </div>
+    </div>
+
+    <script>
+        // Team configuration
+        const rotationStaff = ['Praveen', 'Thilagar', 'Alex', 'Saravanan', 'Mani', 'Ryan'];
+        const regularStaff = ['Senthil K', 'Shi Chun', 'Soma'];
+        const shiftTypes = ['Night', 'Morning', 'Afternoon'];
+        
+        // Initial assignments - 3 on Night to ensure coverage, others distributed
+        const initialAssignments = {
+            'Praveen': 'Night',
+            'Thilagar': 'Night', 
+            'Alex': 'Night',
+            'Saravanan': 'Morning',
+            'Mani': 'Afternoon',
+            'Ryan': 'Morning'
+        };
+
+        // OFF day patterns - 2 consecutive days per person per week
+        const offDayPatterns = [
+            { off: [2, 3], pattern: "Tue-Wed" },      // Praveen 
+            { off: [4, 5], pattern: "Thu-Fri" },      // Thilagar 
+            { off: [0, 1], pattern: "Sun-Mon" },      // Alex
+            { off: [6, 0], pattern: "Sat-Sun" },      // Saravanan
+            { off: [1, 2], pattern: "Mon-Tue" },      // Mani
+            { off: [3, 4], pattern: "Wed-Thu" }       // Ryan
+        ];
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function isWeekend(date) {
+            return date.getDay() === 0 || date.getDay() === 6;
+        }
+
+        function getDayName(date) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            return days[date.getDay()];
+        }
+
+        function getNextShift(currentShift) {
+            const index = shiftTypes.indexOf(currentShift);
+            return shiftTypes[(index + 1) % shiftTypes.length];
+        }
+
+        function getOffDays(person, startDate, endDate) {
+            const offDays = [];
+            const personIndex = rotationStaff.indexOf(person);
+            const pattern = offDayPatterns[personIndex];
+            
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.getDay();
+                
+                if (pattern.off.includes(dayOfWeek)) {
+                    offDays.push(new Date(currentDate));
+                }
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return offDays;
+        }
+
+        function getAvailableWorkersForShift(targetShift, date, twoWeekBlock) {
+            return rotationStaff.filter(person => {
+                const pInitialShift = initialAssignments[person];
+                let pCurrentShiftIndex = shiftTypes.indexOf(pInitialShift);
+                for (let i = 0; i < twoWeekBlock; i++) {
+                    pCurrentShiftIndex = (pCurrentShiftIndex + 1) % shiftTypes.length;
+                }
+                const pAssignedShift = shiftTypes[pCurrentShiftIndex];
+                
+                // Check if this person is OFF today
+                const pOffDays = getOffDays(person, new Date(2025, 8, 15), new Date(2025, 11, 31));
+                const pIsOffToday = pOffDays.some(offDay => 
+                    offDay.getFullYear() === date.getFullYear() &&
+                    offDay.getMonth() === date.getMonth() &&
+                    offDay.getDate() === date.getDate()
+                );
+                
+                return pAssignedShift === targetShift && !pIsOffToday;
+            });
+        }
+
+        function getCurrentShift(person, date) {
+            const initialShift = initialAssignments[person];
+            
+            // Calculate 2-week block
+            const startDate = new Date(2025, 8, 15);
+            const daysSinceStart = Math.floor((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+            const twoWeekBlock = Math.floor(daysSinceStart / 14);
+            
+            // Rotate shifts every 2 weeks
+            let currentShiftIndex = shiftTypes.indexOf(initialShift);
+            for (let i = 0; i < twoWeekBlock; i++) {
+                currentShiftIndex = (currentShiftIndex + 1) % shiftTypes.length;
+            }
+            const assignedShift = shiftTypes[currentShiftIndex];
+            
+            // Check if person is OFF today
+            const offDays = getOffDays(person, new Date(2025, 8, 15), new Date(2025, 11, 31));
+            const isOffToday = offDays.some(offDay => 
+                offDay.getFullYear() === date.getFullYear() &&
+                offDay.getMonth() === date.getMonth() &&
+                offDay.getDate() === date.getDate()
+            );
+            
+            if (isOffToday) {
+                return 'OFF';
+            }
+            
+            // Ensure exactly 2 people on Night shift
+            if (assignedShift === 'Night') {
+                const availableNightWorkers = getAvailableWorkersForShift('Night', date, twoWeekBlock);
+                
+                if (availableNightWorkers.slice(0, 2).includes(person)) {
+                    return 'Night';
+                } else if (!isWeekend(date)) {
+                    return 'Regular';
+                }
+                return 'Night';
+            }
+            
+            // Ensure exactly 1 person on Morning/Afternoon
+            if (!isWeekend(date) && (assignedShift === 'Morning' || assignedShift === 'Afternoon')) {
+                const availableWorkers = getAvailableWorkersForShift(assignedShift, date, twoWeekBlock);
+                
+                if (availableWorkers[0] === person) {
+                    return assignedShift;
+                } else {
+                    return 'Regular';
+                }
+            }
+            
+            return assignedShift;
+        }
+
+        function generateRoster(month, year) {
+            let startDate, endDate;
+            
+            if (month === 8) { // September
+                startDate = new Date(2025, 8, 15);
+                endDate = new Date(2025, 8, 30);
+            } else if (month === 11) { // December
+                startDate = new Date(year, month, 1);
+                endDate = new Date(2025, 11, 31);
+            } else {
+                startDate = new Date(year, month, 1);
+                endDate = new Date(year, month + 1, 0);
+            }
+
+            let html = '<table class="roster-table"><thead><tr>';
+            html += '<th>Date</th><th>Day</th>';
+            
+            // Add staff columns
+            rotationStaff.forEach(person => {
+                html += `<th>${person}</th>`;
+            });
+            regularStaff.forEach(person => {
+                html += `<th>${person}</th>`;
+            });
+            html += '<th>OFF Days</th>';
+            html += '</tr></thead><tbody>';
+
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                const isWeekendDay = isWeekend(currentDate);
+                const rowClass = isWeekendDay ? 'weekend' : '';
+                
+                html += `<tr class="${rowClass}">`;
+                html += `<td class="date-col">${currentDate.getDate()}</td>`;
+                html += `<td class="day-col">${getDayName(currentDate)}</td>`;
+                
+                let offPeople = [];
+                
+                rotationStaff.forEach(person => {
+                    const shift = getCurrentShift(person, currentDate);
+                    
+                    if (shift === 'OFF') {
+                        html += `<td class="shift-cell off">OFF</td>`;
+                        offPeople.push(person);
+                    } else {
+                        const shiftClass = shift.toLowerCase();
+                        html += `<td class="shift-cell ${shiftClass}">${shift}</td>`;
+                    }
+                });
+                
+                // Add regular staff columns
+                regularStaff.forEach(person => {
+                    if (isWeekendDay) {
+                        html += `<td class="shift-cell off">OFF</td>`;
+                        offPeople.push(person);
+                    } else {
+                        html += `<td class="shift-cell regular">Regular</td>`;
+                    }
+                });
+                
+                html += `<td class="off">${offPeople.join(', ') || 'None'}</td>`;
+                html += '</tr>';
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function generateSummary(month, year) {
+            let html = '<div class="summary"><h3>2-Week Block Rotation Summary</h3><div class="summary-grid">';
+            
+            rotationStaff.forEach(person => {
+                const initialShift = initialAssignments[person];
+                let currentShift = initialShift;
+                let schedule = [`Block 1 (Sep 15-28): ${currentShift}`];
+                
+                // Calculate next few blocks
+                for (let block = 1; block <= 7; block++) {
+                    currentShift = getNextShift(currentShift);
+                    const blockStart = new Date(2025, 8, 15);
+                    blockStart.setDate(15 + (block * 14));
+                    const blockEnd = new Date(blockStart);
+                    blockEnd.setDate(blockStart.getDate() + 13);
+                    
+                    const startStr = `${blockStart.getMonth() + 1}/${blockStart.getDate()}`;
+                    const endStr = `${blockEnd.getMonth() + 1}/${blockEnd.getDate()}`;
+                    
+                    schedule.push(`Block ${block + 1} (${startStr}-${endStr}): ${currentShift}`);
+                    if (schedule.length >= 4) break;
+                }
+                
+                const offPattern = offDayPatterns[rotationStaff.indexOf(person)];
+                
+                html += `<div class="summary-item">
+                    <strong>${person}</strong>
+                    <div class="rotation-schedule">
+                        ${schedule.slice(0, 3).join('<br>')}
+                        <br><small>OFF Days: ${offPattern.pattern}</small>
+                    </div>
+                </div>`;
+            });
+            
+            html += '</div></div>';
+            return html;
+        }
+
+        // Initialize rosters
+        function initializeRosters() {
+            document.getElementById('september-roster').innerHTML = generateRoster(8, 2025);
+            document.getElementById('september-summary').innerHTML = generateSummary(8, 2025);
+            
+            document.getElementById('october-roster').innerHTML = generateRoster(9, 2025);
+            document.getElementById('october-summary').innerHTML = generateSummary(9, 2025);
+            
+            document.getElementById('november-roster').innerHTML = generateRoster(10, 2025);
+            document.getElementById('november-summary').innerHTML = generateSummary(10, 2025);
+            
+            document.getElementById('december-roster').innerHTML = generateRoster(11, 2025);
+            document.getElementById('december-summary').innerHTML = generateSummary(11, 2025);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeRosters);
+    </script>
+</body>
+</html>
