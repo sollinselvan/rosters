@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Shift Roster - Sep-Dec 2025</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        .tabs {
+            display: flex;
+            background: #2c3e50;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            color: white;
+            background: #34495e;
+            border: none;
+            font-size: 16px;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+        .tab.active {
+            background: #3498db;
+        }
+        .tab:hover {
+            background: #4a6fa5;
+        }
+        .month-content {
+            display: none;
+            padding: 20px;
+        }
+        .month-content.active {
+            display: block;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        .roster-table th,
+        .roster-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .roster-table th {
+            background: #34495e;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .roster-table         .name-col {
+            background: #ecf0f1;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 12px;
+            min-width: 80px;
+        }
+        .date-header {
+            min-width: 80px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .weekend.morning {
+            background-color: #e17055 !important;
+        }
+        .weekend.afternoon {
+            background-color: #0984e3 !important;
+        }
+        .weekend.night {
+            background-color: #6c5ce7 !important;
+        }
+        .weekend.regular {
+            background-color: #00a085 !important;
+        }
+        .weekend.off {
+            background-color: #2d3436 !important;
+        }
+        .weekend:not(.morning):not(.afternoon):not(.night):not(.regular):not(.off) {
+            background-color: #ffeaa7;
+        }
+        /* Shift Colors */
+        .morning {
+            background-color: #fdcb6e;
+            color: #2d3436;
+        }
+        .afternoon {
+            background-color: #74b9ff;
+            color: white;
+        }
+        .night {
+            background-color: #a29bfe;
+            color: white;
+        }
+        .regular {
+            background-color: #00b894;
+            color: white;
+        }
+        .off {
+            background-color: #636e72;
+            color: white;
+        }
+        .shift-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f1f2f6;
+            border-radius: 8px;
+        }
+        .shift-summary h3 {
+            margin-top: 0;
+            color: #2f3542;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .person-schedule {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .person-schedule h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .schedule-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .schedule-block:last-child {
+            border-bottom: none;
+        }
+        .export-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .export-btn:hover {
+            background: #219a52;
+        }
+        .controls {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .roster-table {
+                font-size: 10px;
+            }
+            .roster-table th,
+            .roster-table td {
+                padding: 4px;
+            }
+            .legend {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Team Shift Roster</h1>
+            <p>September 15 - December 31, 2025 | 10 Team Members | 2-Week Rotation Blocks</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showMonth('september')">September 2025</button>
+            <button class="tab" onclick="showMonth('october')">October 2025</button>
+            <button class="tab" onclick="showMonth('november')">November 2025</button>
+            <button class="tab" onclick="showMonth('december')">December 2025</button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color morning"></div>
+                <span>Morning (06:00-15:30)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color afternoon"></div>
+                <span>Afternoon (14:00-23:30)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color night"></div>
+                <span>Night (22:00-07:00)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color regular"></div>
+                <span>Regular (08:30-18:00)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color off"></div>
+                <span>OFF Day</span>
+            </div>
+        </div>
+
+        <!-- September Content -->
+        <div id="september" class="month-content active">
+            <h2>September 2025 (Starting Sep 15)</h2>
+            <div style="overflow-x: auto;">
+                <table class="roster-table" id="september-table">
+                    <!-- Table will be generated by JavaScript -->
+                </table>
+            </div>
+            <div class="shift-summary">
+                <h3>2-Week Rotation Blocks - September</h3>
+                <div class="summary-grid" id="september-summary">
+                    <!-- Summary will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- October Content -->
+        <div id="october" class="month-content">
+            <h2>October 2025</h2>
+            <div style="overflow-x: auto;">
+                <table class="roster-table" id="october-table">
+                    <!-- Table will be generated by JavaScript -->
+                </table>
+            </div>
+            <div class="shift-summary">
+                <h3>2-Week Rotation Blocks - October</h3>
+                <div class="summary-grid" id="october-summary">
+                    <!-- Summary will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- November Content -->
+        <div id="november" class="month-content">
+            <h2>November 2025</h2>
+            <div style="overflow-x: auto;">
+                <table class="roster-table" id="november-table">
+                    <!-- Table will be generated by JavaScript -->
+                </table>
+            </div>
+            <div class="shift-summary">
+                <h3>2-Week Rotation Blocks - November</h3>
+                <div class="summary-grid" id="november-summary">
+                    <!-- Summary will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- December Content -->
+        <div id="december" class="month-content">
+            <h2>December 2025</h2>
+            <div style="overflow-x: auto;">
+                <table class="roster-table" id="december-table">
+                    <!-- Table will be generated by JavaScript -->
+                </table>
+            </div>
+            <div class="shift-summary">
+                <h3>2-Week Rotation Blocks - December</h3>
+                <div class="summary-grid" id="december-summary">
+                    <!-- Summary will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="export-btn" onclick="exportToCSV()">Export to CSV</button>
+            <button class="export-btn" onclick="printRoster()">Print Roster</button>
+        </div>
+    </div>
+
+    <script>
+        // Team data
+        const rotationStaff = ['Mark', 'Vignesh', 'Dhana', 'Channa', 'Aung Tun', 'Mugil', 'Sai Kumar', 'Williams', 'Adnan'];
+        const regularStaff = ['Theran'];
+        const allStaff = [...rotationStaff, ...regularStaff];
+
+        // Shift types
+        const shifts = {
+            MORNING: 'M',
+            AFTERNOON: 'A', 
+            NIGHT: 'N',
+            REGULAR: 'R',
+            OFF: 'OFF'
+        };
+
+        // Global rotation tracking
+        let globalRotationState = {};
+
+        // Initialize rotation state for each person
+        function initializeRotationState() {
+            // Define consecutive OFF day patterns (each person gets 2 consecutive days)
+            const consecutiveOffPatterns = [
+                [1, 2], // Monday-Tuesday
+                [2, 3], // Tuesday-Wednesday  
+                [3, 4], // Wednesday-Thursday
+                [4, 5], // Thursday-Friday
+                [5, 6], // Friday-Saturday
+                [6, 0], // Saturday-Sunday
+                [0, 1], // Sunday-Monday
+                [1, 2], // Monday-Tuesday (cycling back)
+                [2, 3]  // Tuesday-Wednesday (cycling back)
+            ];
+
+            rotationStaff.forEach((person, index) => {
+                // Start everyone on different shifts to ensure coverage
+                let startShift;
+                if (index < 3) startShift = 'NIGHT';
+                else if (index < 5) startShift = 'MORNING';
+                else startShift = 'AFTERNOON';
+
+                globalRotationState[person] = {
+                    currentShift: startShift,
+                    blockStartDate: new Date(2025, 8, 15), // Sep 15, 2025
+                    offDays: consecutiveOffPatterns[index % consecutiveOffPatterns.length]
+                };
+            });
+
+            // Theran (regular staff) gets Saturday-Sunday OFF
+            globalRotationState['Theran'] = {
+                currentShift: 'REGULAR',
+                blockStartDate: new Date(2025, 8, 15),
+                offDays: [6, 0] // Saturday-Sunday consecutive
+            };
+        }
+
+        // Get OFF day pattern (different for each person to ensure coverage)
+        function getOffDaysPattern(personIndex) {
+            const patterns = [
+                [1, 2], // Monday-Tuesday
+                [2, 3], // Tuesday-Wednesday  
+                [3, 4], // Wednesday-Thursday
+                [4, 5], // Thursday-Friday
+                [5, 6], // Friday-Saturday
+                [6, 0], // Saturday-Sunday
+                [0, 1], // Sunday-Monday
+                [1, 2], // Monday-Tuesday (repeat)
+                [2, 3]  // Tuesday-Wednesday (repeat)
+            ];
+            return patterns[personIndex % patterns.length];
+        }
+
+        // Check if two days are consecutive
+        function areConsecutiveDays(day1, day2) {
+            return (day1 + 1) % 7 === day2 || (day2 + 1) % 7 === day1;
+        }
+
+        // Get consecutive OFF days for a person in a given week
+        function getWeeklyOffDays(person, weekStartDate) {
+            const personIndex = rotationStaff.indexOf(person);
+            if (personIndex === -1) return []; // Not rotation staff
+            
+            const offPattern = getOffDaysPattern(personIndex);
+            return offPattern;
+        }
+
+        // Get next shift in rotation
+        function getNextShift(currentShift) {
+            const rotationOrder = ['NIGHT', 'MORNING', 'AFTERNOON'];
+            const currentIndex = rotationOrder.indexOf(currentShift);
+            return rotationOrder[(currentIndex + 1) % rotationOrder.length];
+        }
+
+        // Check if person should be OFF on given date
+        function isOffDay(person, date) {
+            if (regularStaff.includes(person)) {
+                // Regular staff OFF on weekends (Saturday-Sunday consecutive)
+                return date.getDay() === 0 || date.getDay() === 6;
+            }
+            
+            // For rotation staff, check their assigned consecutive OFF days
+            if (!globalRotationState[person]) return false;
+            
+            const offPattern = globalRotationState[person].offDays;
+            const dayOfWeek = date.getDay();
+            
+            // Check if this day of week is in their OFF pattern
+            return offPattern.includes(dayOfWeek);
+        }
+
+        // Get person's base shift assignment (ignoring OFF days)
+        function getPersonBaseShift(person, date) {
+            if (regularStaff.includes(person)) {
+                return 'REGULAR';
+            }
+
+            // Check if we need to rotate (every 14 days)
+            const daysSinceStart = Math.floor((date - globalRotationState[person].blockStartDate) / (1000 * 60 * 60 * 24));
+            
+            // Calculate which 14-day block we're in
+            const blockNumber = Math.floor(daysSinceStart / 14);
+            
+            // Get the base shift for this person and rotate it based on block number
+            let currentShift = globalRotationState[person].currentShift;
+            
+            // Apply rotation for each completed 14-day block
+            for (let i = 0; i < blockNumber; i++) {
+                currentShift = getNextShift(currentShift);
+            }
+
+            return currentShift;
+        }
+
+        // Get person's shift for a specific date (considering OFF days)
+        function getPersonShift(person, date) {
+            // First check if OFF day
+            if (isOffDay(person, date)) {
+                return 'OFF';
+            }
+            
+            // If not OFF, return their base shift
+            return getPersonBaseShift(person, date);
+        }
+
+        // Ensure night shift has 2 people
+        function balanceNightShift(schedule, date) {
+            const nightWorkers = rotationStaff.filter(person => 
+                schedule[person] === 'NIGHT'
+            );
+
+            if (nightWorkers.length < 2) {
+                // Find people who are OFF or on other shifts to move to night
+                const availablePeople = rotationStaff.filter(person => 
+                    schedule[person] === 'OFF' || 
+                    (schedule[person] !== 'NIGHT' && !isOffDay(person, date))
+                );
+                
+                for (let i = 0; i < Math.min(2 - nightWorkers.length, availablePeople.length); i++) {
+                    schedule[availablePeople[i]] = 'NIGHT';
+                }
+            } else if (nightWorkers.length > 2) {
+                // Move extra night workers to other shifts or regular
+                const extraWorkers = nightWorkers.slice(2);
+                extraWorkers.forEach(person => {
+                    schedule[person] = 'REGULAR'; // Move to regular shift
+                });
+            }
+        }
+
+        // Generate schedule for a specific date
+        function generateDaySchedule(date) {
+            const schedule = {};
+            
+            // Step 1: Assign everyone their base shift or OFF day
+            allStaff.forEach(person => {
+                if (isOffDay(person, date)) {
+                    schedule[person] = 'OFF';
+                } else {
+                    // Get their rotation shift for this 14-day block
+                    schedule[person] = getPersonBaseShift(person, date);
+                }
+            });
+
+            // Step 2: Count available people for each shift
+            const availableByShift = {
+                NIGHT: rotationStaff.filter(person => schedule[person] === 'NIGHT').length,
+                MORNING: rotationStaff.filter(person => schedule[person] === 'MORNING').length,
+                AFTERNOON: rotationStaff.filter(person => schedule[person] === 'AFTERNOON').length
+            };
+
+            // Step 3: Ensure minimum coverage requirements
+            // Night shift MUST have 2 people minimum
+            if (availableByShift.NIGHT < 2) {
+                const needed = 2 - availableByShift.NIGHT;
+                let moved = 0;
+                
+                // Move people from morning/afternoon to night if needed
+                for (let person of rotationStaff) {
+                    if (moved >= needed) break;
+                    if (schedule[person] === 'MORNING' && availableByShift.MORNING > 1) {
+                        schedule[person] = 'NIGHT';
+                        availableByShift.MORNING--;
+                        availableByShift.NIGHT++;
+                        moved++;
+                    } else if (schedule[person] === 'AFTERNOON' && availableByShift.AFTERNOON > 1) {
+                        schedule[person] = 'NIGHT';
+                        availableByShift.AFTERNOON--;
+                        availableByShift.NIGHT++;
+                        moved++;
+                    }
+                }
+            }
+
+            // Ensure at least 1 person on morning and afternoon
+            if (availableByShift.MORNING === 0) {
+                for (let person of rotationStaff) {
+                    if (schedule[person] === 'AFTERNOON' && availableByShift.AFTERNOON > 1) {
+                        schedule[person] = 'MORNING';
+                        availableByShift.AFTERNOON--;
+                        availableByShift.MORNING++;
+                        break;
+                    }
+                }
+            }
+
+            if (availableByShift.AFTERNOON === 0) {
+                for (let person of rotationStaff) {
+                    if (schedule[person] !== 'NIGHT' && schedule[person] !== 'MORNING' && schedule[person] !== 'OFF') {
+                        schedule[person] = 'AFTERNOON';
+                        break;
+                    }
+                }
+            }
+
+            return schedule;
+        }
+
+        // Generate month data
+        function generateMonthData(year, month, startDay = 1) {
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const monthData = [];
+
+            for (let day = startDay; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                if (month === 8 && day < 15) continue; // Skip before Sep 15
+                
+                const daySchedule = generateDaySchedule(date);
+                monthData.push({
+                    date: date,
+                    day: day,
+                    dayOfWeek: date.getDay(),
+                    schedule: daySchedule
+                });
+            }
+
+            return monthData;
+        }
+
+        // Generate table HTML
+        function generateTable(monthData, tableId) {
+            const table = document.getElementById(tableId);
+            if (!monthData || monthData.length === 0) return;
+
+            // Create header with names as columns
+            let headerHTML = '<thead><tr><th class="name-col">Date</th><th class="name-col">Day</th>';
+            allStaff.forEach(person => {
+                headerHTML += `<th class="date-header">${person}</th>`;
+            });
+            headerHTML += '<th class="name-col">OFF Days</th></tr></thead>';
+
+            // Create body with days as rows
+            let bodyHTML = '<tbody>';
+            monthData.forEach(dayData => {
+                const isWeekend = dayData.dayOfWeek === 0 || dayData.dayOfWeek === 6;
+                const weekdayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayData.dayOfWeek];
+                const dateStr = `${dayData.day}`;
+                
+                bodyHTML += `<tr>`;
+                bodyHTML += `<td class="name-col ${isWeekend ? 'weekend' : ''}">${dateStr}</td>`;
+                bodyHTML += `<td class="name-col ${isWeekend ? 'weekend' : ''}">${weekdayName}</td>`;
+                
+                // Add each person's shift
+                const offPeople = [];
+                allStaff.forEach(person => {
+                    const shift = dayData.schedule[person];
+                    let className = '';
+                    let displayText = '';
+
+                    switch(shift) {
+                        case 'MORNING':
+                            className = 'morning';
+                            displayText = 'M';
+                            break;
+                        case 'AFTERNOON':
+                            className = 'afternoon';
+                            displayText = 'A';
+                            break;
+                        case 'NIGHT':
+                            className = 'night';
+                            displayText = 'N';
+                            break;
+                        case 'REGULAR':
+                            className = 'regular';
+                            displayText = 'R';
+                            break;
+                        case 'OFF':
+                            className = 'off';
+                            displayText = 'OFF';
+                            offPeople.push(person);
+                            break;
+                    }
+
+                    bodyHTML += `<td class="${className} ${isWeekend ? 'weekend' : ''}">${displayText}</td>`;
+                });
+                
+                // Add OFF Days column
+                const offDaysText = offPeople.length > 0 ? offPeople.join(', ') : 'None';
+                bodyHTML += `<td class="name-col ${isWeekend ? 'weekend' : ''}">${offDaysText}</td>`;
+                bodyHTML += '</tr>';
+            });
+            bodyHTML += '</tbody>';
+
+            table.innerHTML = headerHTML + bodyHTML;
+        }
+
+        // Generate rotation summary
+        function generateRotationSummary(monthData, summaryId) {
+            const summaryDiv = document.getElementById(summaryId);
+            let summaryHTML = '';
+
+            rotationStaff.forEach(person => {
+                let personHTML = `<div class="person-schedule">
+                    <h4>${person}</h4>`;
+
+                // Track 2-week rotation blocks for this person
+                const blocks = [];
+                let currentBlock = null;
+
+                monthData.forEach((dayData, index) => {
+                    const shift = dayData.schedule[person];
+                    if (shift !== 'OFF') {
+                        // Calculate which 14-day block this date falls into
+                        const daysSinceStart = Math.floor((dayData.date - globalRotationState[person].blockStartDate) / (1000 * 60 * 60 * 24));
+                        const blockNumber = Math.floor(daysSinceStart / 14);
+                        
+                        // Get the base shift for this block (ignoring OFF days)
+                        const baseShift = getPersonBaseShift(person, dayData.date);
+                        
+                        if (!currentBlock || currentBlock.blockNumber !== blockNumber || currentBlock.shift !== baseShift) {
+                            if (currentBlock) blocks.push(currentBlock);
+                            currentBlock = {
+                                shift: baseShift,
+                                blockNumber: blockNumber,
+                                startDate: dayData.date,
+                                endDate: dayData.date
+                            };
+                        } else {
+                            currentBlock.endDate = dayData.date;
+                        }
+                    }
+                });
+
+                if (currentBlock) blocks.push(currentBlock);
+
+                // Show blocks based on 14-day rotation
+                blocks.forEach(block => {
+                    const shiftName = {
+                        'NIGHT': 'Night Shift',
+                        'MORNING': 'Morning Shift', 
+                        'AFTERNOON': 'Afternoon Shift',
+                        'REGULAR': 'Regular Hours'
+                    }[block.shift] || block.shift;
+
+                    const startStr = block.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const endStr = block.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    
+                    personHTML += `<div class="schedule-block">
+                        <span>${shiftName}</span>
+                        <span>${startStr} - ${endStr}</span>
+                    </div>`;
+                });
+
+                personHTML += '</div>';
+                summaryHTML += personHTML;
+            });
+
+            // Add Theran's schedule
+            summaryHTML += `<div class="person-schedule">
+                <h4>Theran</h4>
+                <div class="schedule-block">
+                    <span>Regular Hours</span>
+                    <span>Mon-Fri (Weekends OFF)</span>
+                </div>
+            </div>`;
+
+            summaryDiv.innerHTML = summaryHTML;
+        }
+
+        // Debug function to show OFF day assignments and initial shifts
+        function debugOffDayAssignments() {
+            console.log("=== ROTATION SCHEDULE DEBUG ===");
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+            console.log("Each person's setup:");
+            rotationStaff.forEach(person => {
+                const offDays = globalRotationState[person].offDays;
+                const offDayNames = offDays.map(day => dayNames[day]);
+                const startShift = globalRotationState[person].currentShift;
+                console.log(`${person}: OFF ${offDayNames.join(' & ')} EVERY WEEK, Starting with ${startShift} shift for 14 days`);
+            });
+            
+            console.log(`Theran: OFF Saturday & Sunday EVERY WEEK, Works REGULAR Mon-Fri`);
+            
+            console.log("\n=== EXAMPLE: First 3 weeks for Mark ===");
+            console.log("Mark should work NIGHT shift for 14 days (Sep 15-28), but OFF every Monday & Tuesday");
+            console.log("Then Mark switches to MORNING shift for 14 days (Sep 29-Oct 12), but still OFF every Monday & Tuesday");
+            
+            // Test Mark specifically for first few days
+            for (let day = 15; day <= 25; day++) {
+                const testDate = new Date(2025, 8, day);
+                const dayName = dayNames[testDate.getDay()];
+                const isOff = isOffDay('Mark', testDate);
+                const baseShift = getPersonBaseShift('Mark', testDate);
+                const daysSinceStart = Math.floor((testDate - globalRotationState['Mark'].blockStartDate) / (1000 * 60 * 60 * 24));
+                const blockNumber = Math.floor(daysSinceStart / 14);
+                
+                console.log(`Sep ${day} (${dayName}): Block ${blockNumber}, ${isOff ? 'OFF' : baseShift}`);
+            }
+        }
+
+        // Initialize and generate all months
+        function initializeRoster() {
+            initializeRotationState();
+            
+            // Debug: Show OFF day assignments
+            debugOffDayAssignments();
+
+            // Generate data for each month
+            const months = [
+                { year: 2025, month: 8, name: 'september', startDay: 15 }, // September (start from 15th)
+                { year: 2025, month: 9, name: 'october', startDay: 1 },
+                { year: 2025, month: 10, name: 'november', startDay: 1 },
+                { year: 2025, month: 11, name: 'december', startDay: 1 }
+            ];
+
+            months.forEach(monthInfo => {
+                const monthData = generateMonthData(monthInfo.year, monthInfo.month, monthInfo.startDay);
+                generateTable(monthData, `${monthInfo.name}-table`);
+                generateRotationSummary(monthData, `${monthInfo.name}-summary`);
+            });
+        }
+
+        // Tab switching
+        function showMonth(monthName) {
+            // Hide all month contents
+            document.querySelectorAll('.month-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected month and activate tab
+            document.getElementById(monthName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Export functions
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Add header for the entire roster
+            csvContent += "Team Shift Roster - September 15 - December 31, 2025\n\n";
+            
+            const months = ['september', 'october', 'november', 'december'];
+            
+            months.forEach(month => {
+                const table = document.getElementById(`${month}-table`);
+                const rows = table.querySelectorAll('tr');
+                
+                csvContent += `${month.toUpperCase()} 2025\n`;
+                csvContent += "Note: Each person has 2 consecutive OFF days per week\n";
+                csvContent += "Legend: M=Morning, A=Afternoon, N=Night, R=Regular, OFF=Off Day\n\n";
+                
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('th, td');
+                    const rowData = Array.from(cells).map(cell => cell.textContent.trim());
+                    csvContent += rowData.join(',') + '\n';
+                });
+                
+                csvContent += '\n';
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "team_roster_sep_dec_2025.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function printRoster() {
+            window.print();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeRoster);
+    </script>
+</body>
+</html>
